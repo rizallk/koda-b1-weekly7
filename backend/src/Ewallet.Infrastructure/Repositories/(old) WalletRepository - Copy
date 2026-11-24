@@ -1,0 +1,74 @@
+using Microsoft.EntityFrameworkCore;
+using Ewallet.Infrastructure.Persistence;
+using Ewallet.Domain.Entities;
+
+namespace Ewallet.Application.Repositories;
+
+public sealed class WalletRepository(AppDbContext db) : IWalletRepository
+{
+  private readonly AppDbContext _db = db;
+
+  public async Task<Wallet?> GetByUserIdAsync(long userId, CancellationToken cancellationToken)
+  {
+    return await _db.Wallets
+      .Include(w => w.User)
+      .FirstOrDefaultAsync(w => w.UserId == userId, cancellationToken);
+  }
+
+  public async Task<Wallet?> GetReadOnlyByUserIdAsync(long id, CancellationToken cancellationToken)
+  {
+    return await _db.Wallets
+      .AsNoTracking()
+      .Include(w => w.User)
+      .FirstOrDefaultAsync(w => w.Id == id, cancellationToken);
+  }
+
+  public async Task<Wallet?> GetByIdAsync(long id, CancellationToken cancellationToken)
+  {
+    return await _db.Wallets
+      .Include(w => w.User)
+      .FirstOrDefaultAsync(w => w.Id == id, cancellationToken);
+  }
+
+  public async Task<Wallet?> GetReadOnlyByIdAsync(long id, CancellationToken cancellationToken)
+  {
+    return await _db.Wallets
+      .AsNoTracking()
+      .Include(w => w.User)
+      .FirstOrDefaultAsync(w => w.Id == id, cancellationToken);
+  }
+
+  public async Task<Wallet?> GetByWalletNumberAsync(string walletNumber, CancellationToken cancellationToken)
+  {
+    return await _db.Wallets
+      .Include(w => w.User)
+      .FirstOrDefaultAsync(w => w.WalletNumber == walletNumber, cancellationToken);
+  }
+
+  public async Task<bool> TryAddAsync(Wallet wallet, CancellationToken cancellationToken)
+  {
+    await _db.Wallets.AddAsync(wallet, cancellationToken);
+
+    var affectedRows = await _db.SaveChangesAsync(cancellationToken);
+
+    return affectedRows > 0;
+  }
+
+  public async Task<bool> TryUpdateBalanceAsync(Wallet wallet, CancellationToken cancellationToken)
+  {
+    _db.Wallets.Update(wallet);
+
+    var affectedRows = await _db.SaveChangesAsync(cancellationToken);
+
+    return affectedRows > 0;
+  }
+
+  public async Task<string?> GetLastWalletNumberAsync(CancellationToken cancellationToken)
+  {
+    return await _db.Wallets
+      .AsNoTracking()
+      .OrderByDescending(w => w.Id)
+      .Select(w => w.WalletNumber)
+      .FirstOrDefaultAsync(cancellationToken);
+  }
+}

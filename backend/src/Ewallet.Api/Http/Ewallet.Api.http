@@ -1,0 +1,159 @@
+@baseUrl = http://localhost:5041
+
+### ================== AUTH SETUP ==================
+### Login Customer (Rizal - UserId 2 / Wallet W001)
+# @name loginCustomer
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "email": "rizallkadamong@gmail.com",
+  "password": "Customer@123"
+}
+
+### Login Admin (Admin - UserId 1)
+# @name loginAdmin
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@ewallet.com",
+  "password": "AdminEwallet@123"
+}
+
+### ================== USER PROFILE (CUSTOMER & ADMIN) ==================
+### Get My Profile (Customer)
+GET {{baseUrl}}/api/v1/users/profile
+Accept: application/json
+Authorization: Bearer {{loginCustomer.response.body.$.accessToken}}
+
+### Update My Profile (Customer)
+PUT {{baseUrl}}/api/v1/users/profile
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{loginCustomer.response.body.$.accessToken}}
+
+{
+  "userName": "rizal.kadamong",
+  "fullName": "Rizal Kadamong",
+  "email": "rizallkadamong@gmail.com",
+  "phoneNumber": "082347711639"
+}
+
+### ================== CUSTOMER HISTORY (Policy: CanTransact) ==================
+### Get My Transaction History
+GET {{baseUrl}}/api/v1/users/me/transactions?page=1&pageSize=10
+Accept: application/json
+Authorization: Bearer {{loginCustomer.response.body.$.accessToken}}
+
+### Get My Wallet Mutation History
+GET {{baseUrl}}/api/v1/users/me/mutations?page=1&pageSize=10
+Accept: application/json
+Authorization: Bearer {{loginCustomer.response.body.$.accessToken}}
+
+### ================== ADMIN USER MANAGEMENT (Policy: CanManageUsers) ==================
+### Get All Users (Search, Filter & Pagination)
+GET {{baseUrl}}/api/v1/users?search=&status=&role=&page=2&pageSize=10
+Accept: application/json
+Authorization: Bearer {{loginAdmin.response.body.$.accessToken}}
+
+### Get User Detail by ID
+GET {{baseUrl}}/api/v1/users/3
+Accept: application/json
+Authorization: Bearer {{loginAdmin.response.body.$.accessToken}}
+
+### Update User Status (ACTIVE / SUSPENDED -> tercatat di AuditLogs)
+PATCH {{baseUrl}}/api/v1/users/3/status
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{loginAdmin.response.body.$.accessToken}}
+
+{
+  "status": "SUSPENDED",
+  "reason": "Akun diaktifkan kembali setelah verifikasi."
+}
+
+### ================== PAYMENT METHODS ==================
+### Get All Payment Methods (Authenticated)
+GET {{baseUrl}}/api/v1/payment-methods?isActive=
+Accept: application/json
+Authorization: Bearer {{loginCustomer.response.body.$.accessToken}}
+
+### ================== TOP UP REQUESTS (ADMIN ONLY) ==================
+### Get All Top Up Requests (Policy: CanManageUsers)
+GET {{baseUrl}}/api/v1/topup-requests
+Accept: application/json
+Authorization: Bearer {{loginAdmin.response.body.$.accessToken}}
+
+### ================== WALLETS & TOP UP (CUSTOMER ONLY) ==================
+### Get My Wallet (Berdasarkan JWT Sub)
+# @name myWallet
+GET {{baseUrl}}/api/v1/wallets/me
+Accept: application/json
+Authorization: Bearer {{loginCustomer.response.body.$.accessToken}}
+
+### Lookup Recipient Wallet Sebelum Transfer (Contoh: W002 milik Budi Santoso)
+# @name recipientWallet
+GET {{baseUrl}}/api/v1/wallets/lookup/W003
+Accept: application/json
+Authorization: Bearer {{loginCustomer.response.body.$.accessToken}}
+
+### Create Top Up Request (Status PENDING, saldo belum bertambah)
+# @name requestTopUp
+POST {{baseUrl}}/api/v1/wallets/me/topup
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{loginCustomer.response.body.$.accessToken}}
+
+{
+  "paymentMethodId": 1,
+  "amount": 50000
+}
+
+### Confirm Top Up (Simulasi pembayaran -> status PAID & saldo bertambah)
+POST {{baseUrl}}/api/v1/wallets/topup/{{requestTopUp.response.body.$.topUpRequestId}}/confirm
+Accept: application/json
+Authorization: Bearer {{loginCustomer.response.body.$.accessToken}}
+
+### ================== TRANSFER (CUSTOMER ONLY) ==================
+### Transfer Balance (Menggunakan ID wallet pengirim & penerima hasil lookup)
+POST {{baseUrl}}/api/v1/transfers
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{loginCustomer.response.body.$.accessToken}}
+
+{
+  "senderWalletId": {{myWallet.response.body.$.id}},
+  "receiverWalletId": {{recipientWallet.response.body.$.walletId}},
+  "amount": 25000,
+  "description": "Transfer pengujian Weekly 7"
+}
+
+
+### ================== QA SECURITY & RBAC NEGATIVE TESTS ==================
+### [Harus 401 Unauthorized] Akses Wallet tanpa JWT Token
+GET {{baseUrl}}/api/v1/wallets/me
+Accept: application/json
+
+### [Harus 403 Forbidden] CUSTOMER mencoba mengakses daftar user milik ADMIN
+GET {{baseUrl}}/api/v1/users
+Accept: application/json
+Authorization: Bearer {{loginCustomer.response.body.$.accessToken}}
+
+### [Harus 403 Forbidden] ADMIN mencoba mengakses wallet/transaksi milik CUSTOMER
+GET {{baseUrl}}/api/v1/wallets/me
+Accept: application/json
+Authorization: Bearer {{loginAdmin.response.body.$.accessToken}}
+
+### [Harus 403 Forbidden] CUSTOMER mencoba transfer memakai SenderWalletId milik orang lain
+POST {{baseUrl}}/api/v1/transfers
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{loginCustomer.response.body.$.accessToken}}
+
+{
+  "senderWalletId": 8,
+  "receiverWalletId": 7,
+  "amount": 10000,
+  "description": "Percobaan akses wallet milik user lain"
+}

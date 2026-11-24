@@ -1,0 +1,55 @@
+@baseUrl = http://localhost:5041
+@origin = http://localhost:5173
+
+### 1. Register Customer Baru (Otomatis dapat role CUSTOMER & Wallet Rp0)
+POST {{baseUrl}}/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "fullName": "Sugeng Sanjaya",
+  "username": "sugeng.sanjaya",
+  "email": "sugeng12@gmail.com",
+  "phoneNumber": "082347711777",
+  "password": "Sugeng@1234"
+}
+
+### 2. Login sebagai CUSTOMER (Seeded User: Rizal - Wallet W001)
+# @name loginCustomer
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "email": "rizal@example.com",
+  "password": "Customer@123"
+}
+
+### 3. Login sebagai ADMIN (Sesuaikan password dengan User Secrets Seed:AdminPassword)
+# @name loginAdmin
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@ewallet.com",
+  "password": "AdminEwallet@123"
+}
+
+### 4. Cek Identitas Sesi Aktif - CUSTOMER (/auth/me)
+GET {{baseUrl}}/api/v1/auth/me
+Accept: application/json
+Authorization: Bearer {{loginCustomer.response.body.$.accessToken}}
+
+### 5. Cek Identitas Sesi Aktif - ADMIN (/auth/me)
+GET {{baseUrl}}/api/v1/auth/me
+Accept: application/json
+Authorization: Bearer {{loginAdmin.response.body.$.accessToken}}
+
+### 6. Refresh Token (Otomatis menggunakan cookie ewallet_refresh dari login terakhir)
+# @name refreshToken
+POST {{baseUrl}}/api/v1/auth/refresh
+Origin: {{origin}}
+Accept: application/json
+
+### 7. Logout (Revoke token family & hapus cookie ewallet_refresh)
+POST {{baseUrl}}/api/v1/auth/logout
+Origin: {{origin}}
+Accept: application/json
