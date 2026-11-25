@@ -98,13 +98,8 @@ export default function Settings() {
               <Input
                 {...register('fullName')}
                 disabled={isSubmitting}
-                aria-invalid={!!errors.fullName}
+                errorMsg={errors?.fullName?.message}
               />
-              {errors.fullName && (
-                <p className="mt-1.5 text-xs text-[#D9383A]">
-                  {errors.fullName.message}
-                </p>
-              )}
             </div>
 
             <div>
@@ -114,13 +109,8 @@ export default function Settings() {
               <Input
                 {...register('username')}
                 disabled={isSubmitting}
-                aria-invalid={!!errors.username}
+                errorMsg={errors?.username?.message}
               />
-              {errors.username && (
-                <p className="mt-1.5 text-xs text-[#D9383A]">
-                  {errors.username.message}
-                </p>
-              )}
             </div>
 
             <div>
@@ -131,13 +121,8 @@ export default function Settings() {
                 type="email"
                 {...register('email')}
                 disabled={isSubmitting}
-                aria-invalid={!!errors.email}
+                errorMsg={errors?.email?.message}
               />
-              {errors.email && (
-                <p className="mt-1.5 text-xs text-[#D9383A]">
-                  {errors.email.message}
-                </p>
-              )}
             </div>
 
             <div>
@@ -147,13 +132,8 @@ export default function Settings() {
               <Input
                 {...register('phoneNumber')}
                 disabled={isSubmitting}
-                aria-invalid={!!errors.phoneNumber}
+                errorMsg={errors?.phoneNumber?.message}
               />
-              {errors.phoneNumber && (
-                <p className="mt-1.5 text-xs text-[#D9383A]">
-                  {errors.phoneNumber.message}
-                </p>
-              )}
             </div>
           </div>
         )}
