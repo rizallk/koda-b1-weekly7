@@ -47,9 +47,9 @@ export default function Activity() {
 
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
-  const [typeFilter, setTypeFilter] = useState('ALL');
-  const [statusFilter, setStatusFilter] = useState('ALL');
-  const [dateFilter, setDateFilter] = useState('ALL');
+  const [typeFilter, setTypeFilter] = useState('ALL TYPE');
+  const [statusFilter, setStatusFilter] = useState('ALL STATUS');
+  const [dateFilter, setDateFilter] = useState('ALL DATE');
   const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
@@ -90,8 +90,8 @@ export default function Activity() {
         page: currentPage,
         pageSize: PAGE_SIZE,
         search: debouncedSearch,
-        type: typeFilter === 'ALL' ? '' : typeFilter,
-        status: statusFilter === 'ALL' ? '' : statusFilter,
+        type: typeFilter === 'ALL TYPE' ? '' : typeFilter,
+        status: statusFilter === 'ALL STATUS' ? '' : statusFilter,
         startDate,
         endDate,
       });
@@ -164,7 +164,7 @@ export default function Activity() {
               <SelectValue placeholder="Semua tipe" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="ALL">Semua tipe</SelectItem>
+              <SelectItem value="ALL TYPE">Semua tipe</SelectItem>
               <SelectItem value="TOPUP">Top Up</SelectItem>
               <SelectItem value="TRANSFER">Transfer</SelectItem>
             </SelectContent>
@@ -177,7 +177,7 @@ export default function Activity() {
               <SelectValue placeholder="Semua status" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="ALL">Semua status</SelectItem>
+              <SelectItem value="ALL STATUS">Semua status</SelectItem>
               <SelectItem value="SUCCESS">Berhasil</SelectItem>
               <SelectItem value="PENDING">Menunggu</SelectItem>
               <SelectItem value="FAILED">Gagal</SelectItem>
@@ -191,7 +191,7 @@ export default function Activity() {
               <SelectValue placeholder="Rentang tanggal" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="ALL">Rentang tanggal</SelectItem>
+              <SelectItem value="ALL DATE">Rentang tanggal</SelectItem>
               <SelectItem value="7d">7 hari terakhir</SelectItem>
               <SelectItem value="30d">30 hari terakhir</SelectItem>
             </SelectContent>

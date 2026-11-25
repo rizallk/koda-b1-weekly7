@@ -175,3 +175,4 @@ D:\Koda\weekly\koda-b1-weekly7\backend\src\Ewallet.Api\obj\Debug\net10.0\refint\
 D:\Koda\weekly\koda-b1-weekly7\backend\src\Ewallet.Api\obj\Debug\net10.0\Ewallet.Api.pdb
 D:\Koda\weekly\koda-b1-weekly7\backend\src\Ewallet.Api\obj\Debug\net10.0\Ewallet.Api.genruntimeconfig.cache
 D:\Koda\weekly\koda-b1-weekly7\backend\src\Ewallet.Api\obj\Debug\net10.0\ref\Ewallet.Api.dll
+D:\Koda\weekly\koda-b1-weekly7\backend\src\Ewallet.Api\obj\Debug\net10.0\Ewallet.Api.sourcelink.json

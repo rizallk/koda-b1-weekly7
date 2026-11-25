@@ -9,3 +9,4 @@ D:\Koda\weekly\koda-b1-weekly7\backend\src\Ewallet.Domain\obj\Debug\net10.0\Ewal
 D:\Koda\weekly\koda-b1-weekly7\backend\src\Ewallet.Domain\obj\Debug\net10.0\refint\Ewallet.Domain.dll
 D:\Koda\weekly\koda-b1-weekly7\backend\src\Ewallet.Domain\obj\Debug\net10.0\Ewallet.Domain.pdb
 D:\Koda\weekly\koda-b1-weekly7\backend\src\Ewallet.Domain\obj\Debug\net10.0\ref\Ewallet.Domain.dll
+D:\Koda\weekly\koda-b1-weekly7\backend\src\Ewallet.Domain\obj\Debug\net10.0\Ewallet.Domain.sourcelink.json

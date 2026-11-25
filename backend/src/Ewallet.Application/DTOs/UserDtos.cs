@@ -71,3 +71,9 @@ public record UserWallet(
   string WalletNumber,
   decimal Balance
 );
+
+public record UserSummary(
+  long TotalUsers,
+  long TotalUsersActive,
+  long TotalUsersSuspended
+);

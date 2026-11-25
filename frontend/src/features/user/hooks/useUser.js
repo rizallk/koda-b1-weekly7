@@ -4,8 +4,10 @@ import {
   getUserByIdApi,
   getUserMutationsApi,
   getUserProfileApi,
+  getUserSummaryApi,
   getUserTransactionsApi,
   updateUserProfileApi,
+  updateUserStatusByIdApi,
 } from '../services/userService';
 
 export const useUser = () => {
@@ -114,7 +116,13 @@ export const useUser = () => {
   );
 
   const getAllUsers = useCallback(
-    async ({ search, status, role, page, pageSize } = {}) => {
+    async ({
+      search = '',
+      status = '',
+      role = '',
+      page = 1,
+      pageSize = 10,
+    } = {}) => {
       try {
         setIsLoading(true);
 
@@ -148,7 +156,21 @@ export const useUser = () => {
     try {
       setIsLoading(true);
 
-      const res = await getUserByIdApi(id, status, reason);
+      const res = await updateUserStatusByIdApi(id, status, reason);
+
+      return res;
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  const getUserSummary = useCallback(async () => {
+    try {
+      setIsLoading(true);
+
+      const res = await getUserSummaryApi();
 
       return res;
     } catch (err) {
@@ -166,6 +188,7 @@ export const useUser = () => {
     getAllUsers,
     getUserById,
     updateUserStatusById,
+    getUserSummary,
     isLoading,
   };
 };

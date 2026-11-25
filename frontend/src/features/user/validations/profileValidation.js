@@ -1,36 +1,28 @@
 import * as yup from 'yup';
 
+const idPhoneRegex = /^(\+62|62|0)8[1-9][0-9]{7,10}$/;
+
 export const profileValidation = yup.object({
   fullName: yup
     .string()
-    .trim()
     .required('Nama lengkap wajib diisi')
-    .min(3, 'Nama lengkap minimal 3 karakter')
-    .max(100, 'Nama lengkap maksimal 100 karakter'),
-
+    .min(5, 'Nama lengkap minimal 5 karakter')
+    .max(120, 'Nama lengkap maksimal 120 karakter'),
   username: yup
     .string()
-    .trim()
     .required('Username wajib diisi')
-    .min(3, 'Username minimal 3 karakter')
-    .max(30, 'Username maksimal 30 karakter')
-    .matches(
-      /^[a-zA-Z0-9._]+$/,
-      'Username hanya boleh berisi huruf, angka, titik, dan garis bawah',
-    ),
-
+    .min(5, 'Username minimal 5 karakter')
+    .max(100, 'Username maksimal 100 karakter'),
   email: yup
     .string()
-    .trim()
     .required('Email wajib diisi')
-    .email('Format email tidak valid'),
-
+    .email('Email harus valid')
+    .min(8, 'Username minimal 8 karakter')
+    .max(100, 'Username maksimal 100 karakter'),
   phoneNumber: yup
     .string()
-    .trim()
-    .matches(/^[0-9+\s-]{9,15}$/, {
-      message: 'Format nomor ponsel tidak valid',
-      excludeEmptyString: true,
-    })
-    .default(''),
+    .matches(idPhoneRegex, 'Nomor telepon tidak valid')
+    .required('Nomor telepon wajib diisi')
+    .min(11, 'Nomor telepon minimal 11 karakter')
+    .max(25, 'Nomor telepon maksimal 25 karakter'),
 });

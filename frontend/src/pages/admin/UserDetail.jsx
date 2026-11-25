@@ -1,52 +1,142 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { StatusBadge } from '@/components/customs/StatusBadge';
+import { formatDateTime } from '@/utils/dateFormat';
+import { useUser } from '@/features/user/hooks/useUser';
+import { getInitials } from '@/utils/getInitials';
+import { formatUsername } from '@/utils/formatUsername';
 
-const USER_DETAILS_MAP = {
-  nadia: {
-    initials: 'NP',
-    name: 'Nadia Putri',
-    username: '@nadia',
-    email: 'nadia@example.com',
-    phone: '0812 3456 7890',
-    walletNumber: 'KW •••• 1842',
-    joinedAt: '10 November 2026',
-    status: 'Aktif',
-  },
-  bima: {
-    initials: 'BP',
-    name: 'Bima Pratama',
-    username: '@bima',
-    email: 'bima@example.com',
-    phone: '0813 9876 5432',
-    walletNumber: 'KW •••• 2941',
-    joinedAt: '11 November 2026',
-    status: 'Aktif',
-  },
-  hendra: {
-    initials: 'HW',
-    name: 'Hendra Wijaya',
-    username: '@hendra',
-    email: 'hendra@example.com',
-    phone: '0811 2233 4455',
-    walletNumber: 'KW •••• 7730',
-    joinedAt: '12 November 2026',
-    status: 'Ditangguhkan',
-  },
+const STATUS_LABELS = {
+  ACTIVE: 'Aktif',
+  SUSPENDED: 'Ditangguhkan',
+};
+
+const ROLE_LABELS = {
+  ADMIN: 'Admin',
+  CUSTOMER: 'Customer',
 };
 
 export default function UserDetail() {
   const { id } = useParams();
-  const user = USER_DETAILS_MAP[id] || USER_DETAILS_MAP.nadia;
-  const [status, setStatus] = useState(user.status);
+  const { getUserById, updateUserStatusById, isLoading } = useUser();
 
-  const isSuspended = status === 'Ditangguhkan';
+  const [user, setUser] = useState(null);
+  const [reason, setReason] = useState('');
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [fetchTrigger, setFetchTrigger] = useState(0);
 
-  const handleToggleStatus = () => {
-    setStatus((prev) => (prev === 'Aktif' ? 'Ditangguhkan' : 'Aktif'));
+  useEffect(() => {
+    if (!id) return;
+
+    const fetchUserDetail = async () => {
+      const data = await getUserById(id);
+
+      setUser(data);
+    };
+
+    fetchUserDetail();
+  }, [id, fetchTrigger]);
+
+  const normalizedStatus = String(user?.status ?? '')
+    .trim()
+    .toUpperCase();
+  const isSuspended =
+    normalizedStatus === 'SUSPENDED' ||
+    normalizedStatus === 'DITANGGUHKAN' ||
+    user?.isActive === false;
+  const formattedStatus = isSuspended
+    ? 'Ditangguhkan'
+    : formatUserStatus(normalizedStatus);
+
+  const handleSuspendAccount = async (e) => {
+    e.preventDefault();
+    if (!id || !user || isUpdating) return;
+
+    setIsUpdating(true);
+    const res = await updateUserStatusById(
+      id,
+      'SUSPENDED',
+      reason.trim() || null,
+    );
+
+    if (res !== undefined) {
+      setFetchTrigger((prev) => prev + 1);
+      setReason('');
+    }
+
+    setIsUpdating(false);
   };
+
+  const handleActivateAccount = async (e) => {
+    e.preventDefault();
+    if (!id || !user || isUpdating) return;
+
+    setIsUpdating(true);
+    const res = await updateUserStatusById(id, 'ACTIVE', reason.trim() || null);
+
+    if (res !== undefined) {
+      setFetchTrigger((prev) => prev + 1);
+      setReason('');
+    }
+
+    setIsUpdating(false);
+  };
+
+  if (isLoading) {
+    return (
+      <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-12">
+        <div className="rounded-3xl bg-white p-8 lg:col-span-8">
+          <div className="h-4 w-32 animate-pulse rounded bg-[#EDF2F0]" />
+          <div className="mt-6 flex items-center gap-4">
+            <div className="size-14 animate-pulse rounded-full bg-[#EDF2F0]" />
+            <div className="space-y-2">
+              <div className="h-5 w-44 animate-pulse rounded bg-[#EDF2F0]" />
+              <div className="h-3.5 w-28 animate-pulse rounded bg-[#F3F6F5]" />
+            </div>
+          </div>
+          <div className="my-7 border-t border-[#EDF2F0]" />
+          <div className="space-y-5">
+            {Array.from({ length: 5 }).map((_, idx) => (
+              <div
+                key={`detail-skeleton-${idx}`}
+                className="grid grid-cols-1 gap-2 sm:grid-cols-12"
+              >
+                <div className="h-3.5 w-24 animate-pulse rounded bg-[#F3F6F5] sm:col-span-4" />
+                <div className="h-4 w-48 animate-pulse rounded bg-[#EDF2F0] sm:col-span-8" />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="rounded-3xl bg-white p-7 lg:col-span-4">
+          <div className="h-5 w-28 animate-pulse rounded bg-[#EDF2F0]" />
+          <div className="mt-4 h-6 w-24 animate-pulse rounded-full bg-[#EDF2F0]" />
+          <div className="mt-4 h-10 w-full animate-pulse rounded bg-[#F3F6F5]" />
+          <div className="mt-6 h-11 w-full animate-pulse rounded-xl bg-[#EDF2F0]" />
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="rounded-3xl bg-white p-8">
+        <Link
+          to="/admin/users"
+          className="inline-flex items-center gap-2 text-xs font-semibold text-[#136C63] hover:underline"
+        >
+          <ArrowLeft className="size-3.5" />
+          <span>Kembali ke daftar</span>
+        </Link>
+        <p className="mt-6 text-sm text-[#6B7280]">
+          Data pengguna tidak ditemukan.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-12">
@@ -64,15 +154,19 @@ export default function UserDetail() {
         <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <div className="flex size-14 items-center justify-center rounded-full bg-[#136C63] text-lg font-bold text-white">
-              {user.initials}
+              {getInitials(user.fullName)}
             </div>
             <div>
-              <h2 className="text-xl font-bold text-[#111827]">{user.name}</h2>
-              <p className="mt-0.5 text-xs text-[#6B7280]">{user.username}</p>
+              <h2 className="text-xl font-bold text-[#111827]">
+                {user.fullName}
+              </h2>
+              <p className="mt-0.5 text-xs text-[#6B7280]">
+                {formatUsername(user.userName)}
+              </p>
             </div>
           </div>
 
-          <StatusBadge status={status} />
+          <StatusBadge status={formattedStatus} />
         </div>
 
         <div className="my-7 border-t border-[#EDF2F0]" />
@@ -84,14 +178,14 @@ export default function UserDetail() {
               Nama lengkap
             </span>
             <span className="text-sm font-semibold text-[#111827] sm:col-span-8">
-              {user.name}
+              {user.fullName}
             </span>
           </div>
 
           <div className="grid grid-cols-1 gap-1 sm:grid-cols-12">
             <span className="text-xs text-[#6B7280] sm:col-span-4">Email</span>
             <span className="text-sm font-semibold text-[#111827] sm:col-span-8">
-              {user.email}
+              {user.email ?? '-'}
             </span>
           </div>
 
@@ -100,7 +194,14 @@ export default function UserDetail() {
               Telepon
             </span>
             <span className="text-sm font-semibold text-[#111827] sm:col-span-8">
-              {user.phone}
+              {user.phoneNumber}
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 gap-1 sm:grid-cols-12">
+            <span className="text-xs text-[#6B7280] sm:col-span-4">Role</span>
+            <span className="text-sm font-semibold text-[#111827] sm:col-span-8">
+              {formatUserRole(user)}
             </span>
           </div>
 
@@ -109,7 +210,7 @@ export default function UserDetail() {
               Nomor dompet
             </span>
             <span className="text-sm font-semibold text-[#111827] sm:col-span-8">
-              {user.walletNumber}
+              {user.wallet?.walletNumber}
             </span>
           </div>
 
@@ -118,7 +219,7 @@ export default function UserDetail() {
               Terdaftar sejak
             </span>
             <span className="text-sm font-semibold text-[#111827] sm:col-span-8">
-              {user.joinedAt}
+              {formatDateTime(user.createdAtUtc)}
             </span>
           </div>
         </div>
@@ -129,28 +230,91 @@ export default function UserDetail() {
         <h2 className="text-lg font-bold text-[#111827]">Status akun</h2>
 
         <div className="mt-4">
-          <StatusBadge status={status} />
+          <StatusBadge status={formattedStatus} />
         </div>
 
-        <p className="mt-4 text-xs leading-relaxed text-[#6B7280]">
-          {isSuspended
-            ? 'Akun ini sedang ditangguhkan dan tidak dapat melakukan transaksi.'
-            : 'Menangguhkan akun akan membatasi akses dan transaksi.'}
-        </p>
+        {isSuspended ? (
+          /* Tampilan ketika status akun DITANGGUHKAN */
+          <form onSubmit={handleActivateAccount}>
+            <p className="mt-4 text-xs leading-relaxed text-[#6B7280]">
+              Akun ini sedang ditangguhkan dan tidak dapat melakukan transaksi.
+            </p>
 
-        <Button
-          type="button"
-          size="lg"
-          onClick={handleToggleStatus}
-          className={
-            isSuspended
-              ? 'mt-6 w-full justify-start px-5'
-              : 'mt-6 w-full justify-start bg-[#B84A39] px-5 text-white hover:bg-[#9e3d2e]'
-          }
-        >
-          {isSuspended ? 'Aktifkan akun' : 'Tangguhkan akun'}
-        </Button>
+            <div className="mt-4">
+              <label
+                htmlFor="activate-reason"
+                className="mb-1.5 block text-xs font-medium text-[#111827]"
+              >
+                Alasan pengaktifan (opsional)
+              </label>
+              <Input
+                id="activate-reason"
+                value={reason}
+                onChange={(e) => setReason(e.target.value)}
+                disabled={isUpdating}
+                placeholder="Contoh: Verifikasi akun telah selesai"
+                className="h-10 text-xs"
+              />
+            </div>
+
+            <Button
+              type="submit"
+              size="lg"
+              disabled={isUpdating}
+              className="mt-5 w-full justify-start px-5"
+            >
+              {isUpdating ? 'Mengaktifkan akun...' : 'Aktifkan akun'}
+            </Button>
+          </form>
+        ) : (
+          /* Tampilan ketika status akun AKTIF */
+          <form onSubmit={handleSuspendAccount}>
+            <p className="mt-4 text-xs leading-relaxed text-[#6B7280]">
+              Menangguhkan akun akan membatasi akses dan transaksi pengguna.
+            </p>
+
+            <div className="mt-4">
+              <label
+                htmlFor="suspend-reason"
+                className="mb-1.5 block text-xs font-medium text-[#111827]"
+              >
+                Alasan penangguhan (opsional)
+              </label>
+              <Input
+                id="suspend-reason"
+                value={reason}
+                onChange={(e) => setReason(e.target.value)}
+                disabled={isUpdating}
+                placeholder="Contoh: Terdeteksi aktivitas mencurigakan"
+                className="h-10 text-xs"
+              />
+            </div>
+
+            <Button
+              type="submit"
+              size="lg"
+              disabled={isUpdating}
+              className="mt-5 w-full justify-start bg-[#B84A39] px-5 text-white hover:bg-[#9e3d2e]"
+            >
+              {isUpdating ? 'Menangguhkan akun...' : 'Tangguhkan akun'}
+            </Button>
+          </form>
+        )}
       </div>
     </div>
   );
+}
+
+// ===================================================
+
+function formatUserStatus(status) {
+  if (!status) return 'Aktif';
+  return STATUS_LABELS[status] ?? status;
+}
+
+function formatUserRole(user) {
+  const rawRole = Array.isArray(user?.roles) ? user.roles[0] : user?.role;
+  if (!rawRole) return '-';
+  const normalized = String(rawRole).toUpperCase();
+  return ROLE_LABELS[normalized] ?? normalized;
 }

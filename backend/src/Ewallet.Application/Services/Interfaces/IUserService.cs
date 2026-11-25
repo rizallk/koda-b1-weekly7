@@ -28,4 +28,5 @@ public interface IUserService
     UpdateUserStatusRequest request,
     string? correlationId,
     CancellationToken cancellationToken = default);
+  Task<UserSummary?> GetUserSummaryAsync(CancellationToken cancellationToken);
 }

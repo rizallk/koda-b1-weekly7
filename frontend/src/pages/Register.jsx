@@ -64,7 +64,7 @@ export default function Register() {
                   Nama lengkap
                 </label>
                 <Input
-                  placeholder="Nadia Putri"
+                  placeholder="Nama lengkap"
                   required
                   {...register('fullName')}
                   errorMsg={errors?.fullName?.message}
@@ -76,7 +76,7 @@ export default function Register() {
                   Username
                 </label>
                 <Input
-                  placeholder="nadia"
+                  placeholder="Username"
                   required
                   {...register('username')}
                   errorMsg={errors?.username?.message}
@@ -89,7 +89,7 @@ export default function Register() {
                 </label>
                 <Input
                   type="email"
-                  placeholder="nadia@example.com"
+                  placeholder="user@example.com"
                   required
                   {...register('email')}
                   errorMsg={errors?.email?.message}

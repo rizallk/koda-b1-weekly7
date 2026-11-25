@@ -10,7 +10,6 @@ import Transfer from '@/pages/customer/Transfer';
 import TransferConfirm from '@/pages/customer/TransferConfirm';
 import TransferSuccess from '@/pages/customer/TransferSuccess';
 import Activity from '@/pages/customer/Activity';
-import Settings from '@/pages/customer/Settings';
 import Summary from '@/pages/admin/Summary';
 import Users from '@/pages/admin/Users';
 import UserDetail from '@/pages/admin/UserDetail';
@@ -23,6 +22,7 @@ import ProtectedRoute from './components/customs/ProtectedRoute';
 import { CustomerRoute } from './routes/CustomerRoute';
 import { AdminRoute } from './routes/AdminRoute';
 import { AppProvider } from './context/App/ToastProvider';
+import Settings from './pages/Settings';
 
 export default function App() {
   return (

@@ -31,7 +31,7 @@ public sealed class UserService(
       return (false, null, ["User tidak ditemukan."]);
 
     var trimmedPhone = request.PhoneNumber.Trim();
-    var phoneExists = await _db.Users
+    var phoneExists = await _userManager.Users
       .AsNoTracking()
       .AnyAsync(u => u.PhoneNumber == trimmedPhone && u.Id != userId, cancellationToken);
 
@@ -105,7 +105,7 @@ public sealed class UserService(
     var page = filter.Page < 1 ? 1 : filter.Page;
     var pageSize = filter.PageSize is < 1 or > 100 ? 10 : filter.PageSize;
 
-    var query = _db.Users
+    var query = _userManager.Users
       .AsNoTracking()
       .Include(u => u.Wallet)
       .AsQueryable();
@@ -209,7 +209,6 @@ public sealed class UserService(
         return (false, null, string.Join(" ", updateResult.Errors.Select(e => e.Description)));
       }
 
-      // Sesuaikan urutan/nama parameter jika constructor AuditLog di Domain Anda berbeda
       var auditLog = new AuditLog(
         actorUserId: adminUserId,
         transactionId: null,
@@ -235,9 +234,34 @@ public sealed class UserService(
     }
   }
 
+  public async Task<UserSummary?> GetUserSummaryAsync(CancellationToken cancellationToken)
+  {
+    var statusCounts = await _userManager.Users
+      .AsNoTracking()
+      .GroupBy(u => u.Status)
+      .Select(g => new
+      {
+        Status = g.Key,
+        Count = g.LongCount()
+      })
+      .ToListAsync(cancellationToken);
+
+    var totalUsers = statusCounts.Sum(x => x.Count);
+    var totalUsersActive = statusCounts
+      .FirstOrDefault(x => string.Equals(x.Status, "ACTIVE", StringComparison.OrdinalIgnoreCase))?.Count ?? 0L;
+    var totalUsersSuspended = statusCounts
+      .FirstOrDefault(x => string.Equals(x.Status, "SUSPENDED", StringComparison.OrdinalIgnoreCase))?.Count ?? 0L;
+
+    return new UserSummary(
+      TotalUsers: totalUsers,
+      TotalUsersActive: totalUsersActive,
+      TotalUsersSuspended: totalUsersSuspended
+    );
+  }
+
   private async Task<UserResponse?> GetUserResponseInternalAsync(long userId, CancellationToken cancellationToken)
   {
-    var user = await _db.Users
+    var user = await _userManager.Users
       .AsNoTracking()
       .Include(u => u.Wallet)
       .FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);

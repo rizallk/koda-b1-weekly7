@@ -59,3 +59,7 @@ export const updateUserStatusByIdApi = async (id, status, reason) => {
     { showSuccess: true },
   );
 };
+
+export const getUserSummaryApi = async () => {
+  return await api.get(`/users/summary`);
+};

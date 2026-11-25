@@ -120,6 +120,16 @@ public sealed class UserController(IUserService service) : ControllerBase
     return Ok(users);
   }
 
+  [HttpGet("summary")]
+  [Authorize(Policy = AppPolicies.CanManageUsers)]
+  [ProducesResponseType(typeof(UserSummary), StatusCodes.Status200OK)]
+  public async Task<ActionResult<UserSummary>> GetUserSummary(
+    CancellationToken cancellationToken)
+  {
+    var userSummary = await _service.GetUserSummaryAsync(cancellationToken);
+    return Ok(userSummary);
+  }
+
   [HttpGet("{id:long}")]
   [Authorize(Policy = AppPolicies.CanManageUsers)]
   [ProducesResponseType(typeof(UserResponse), StatusCodes.Status200OK)]

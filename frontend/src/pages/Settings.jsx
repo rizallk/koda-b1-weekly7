@@ -44,6 +44,8 @@ export default function Settings() {
   }, [getUserProfile, reset]);
 
   const onSubmit = async (values) => {
+    console.log('test');
+
     if (!isDirty) return;
 
     const payload = {
@@ -53,16 +55,14 @@ export default function Settings() {
       phoneNumber: values.phoneNumber?.trim() ?? '',
     };
 
-    const res = await updateUserProfile(payload);
+    const data = await updateUserProfile(payload);
 
-    if (res) {
-      const updated = res?.data ?? res;
+    if (data) {
       reset({
-        fullName: updated?.fullName ?? payload.fullName,
-        username: updated?.username ?? updated?.userName ?? payload.username,
-        email: updated?.email ?? payload.email,
-        phoneNumber:
-          updated?.phoneNumber ?? updated?.phone ?? payload.phoneNumber,
+        fullName: data.fullName,
+        username: data.userName,
+        email: data.email,
+        phoneNumber: data.phoneNumber,
       });
     }
   };

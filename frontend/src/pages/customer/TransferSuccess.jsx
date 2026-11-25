@@ -1,4 +1,4 @@
-import { Link, useLocation } from 'react-router';
+import { Link, Navigate, useLocation } from 'react-router';
 import { Check } from 'lucide-react';
 import { BrandLogo } from '@/components/customs/BrandLogo';
 import { Button } from '@/components/ui/button';
@@ -7,6 +7,8 @@ import { formatRupiah } from '@/utils/formatRupiah';
 export default function TransferSuccess() {
   const location = useLocation();
   const data = location.state;
+
+  if (Object.keys(data).length === 0) return <Navigate to="/transfer" />;
 
   return (
     <div className="flex min-h-screen flex-col bg-white">

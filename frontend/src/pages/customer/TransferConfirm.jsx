@@ -1,4 +1,4 @@
-import { Link, useLocation, useNavigate } from 'react-router';
+import { Link, Navigate, useLocation, useNavigate } from 'react-router';
 import { ArrowLeft } from 'lucide-react';
 import { BrandLogo } from '@/components/customs/BrandLogo';
 import { Button } from '@/components/ui/button';
@@ -32,6 +32,8 @@ export default function TransferConfirm() {
       console.log(error);
     }
   };
+
+  if (Object.keys(data).length === 0) return <Navigate to="/transfer" />;
 
   return (
     <div className="flex min-h-screen flex-col bg-white">
