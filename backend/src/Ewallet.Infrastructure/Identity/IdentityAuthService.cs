@@ -5,11 +5,15 @@ using Ewallet.Application.DTOs;
 using Ewallet.Application.Services.Interfaces;
 using Ewallet.Application.Security;
 using Ewallet.Infrastructure.Persistence;
+using Ewallet.Infrastructure.Repositories;
+using Ewallet.Application.Repositories;
+using Ewallet.Domain.Entities;
 
 namespace Ewallet.Infrastructure.Identity;
 
-public sealed class IdentityAuthService(UserManager<AppUser> user, AppDbContext db) : IAuthService
+public sealed class IdentityAuthService(IWalletRepository walletRepository, UserManager<AppUser> user, AppDbContext db) : IAuthService
 {
+  private readonly IWalletRepository _walletRepository = walletRepository;
   private readonly UserManager<AppUser> _user = user;
   private readonly AppDbContext _db = db;
 
@@ -20,6 +24,11 @@ public sealed class IdentityAuthService(UserManager<AppUser> user, AppDbContext 
     var user = await _user.FindByEmailAsync(email);
 
     if (user is null)
+    {
+      return new LoginResults(false, null);
+    }
+
+    if (user.Status == "SUSPENDED")
     {
       return new LoginResults(false, null);
     }
@@ -55,8 +64,23 @@ public sealed class IdentityAuthService(UserManager<AppUser> user, AppDbContext 
       return new RegisterResult(RegisterStatus.DuplicateEmail, null, ["Email sudah terdaftar"]);
     }
 
+    string generatedWalletNumber = "W001";
+    string? lastWalletNumber = await _walletRepository.GetLastWalletNumberAsync(ct);
+
+    if (!string.IsNullOrWhiteSpace(lastWalletNumber) && lastWalletNumber.StartsWith('W'))
+    {
+      string numberPart = lastWalletNumber.Substring(1);
+
+      if (int.TryParse(numberPart, out int lastNumber))
+      {
+        int newNumber = lastNumber + 1;
+        generatedWalletNumber = $"W{newNumber:D3}";
+      }
+    }
+
     var user = new AppUser(req.Username, req.FullName, req.Email, req.PhoneNumber, "ACTIVE", null);
 
+    user.AssignWallet(generatedWalletNumber);
 
     await using var transaction =
           await _db.Database.BeginTransactionAsync(ct);

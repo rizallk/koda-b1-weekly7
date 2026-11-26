@@ -19,7 +19,7 @@ public record WalletRequest(
 public sealed record WalletResponse(
   long Id,
   long UserId,
-  string ReferenceNo,
+  string? ReferenceNo,
   string WalletNumber,
   decimal Balance,
   string WalletStatus,

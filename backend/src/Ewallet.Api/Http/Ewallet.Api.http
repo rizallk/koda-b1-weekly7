@@ -55,7 +55,8 @@ Authorization: Bearer {{loginCustomer.response.body.$.accessToken}}
 ### Get All Users (Search, Filter & Pagination)
 GET {{baseUrl}}/api/v1/users?search=&status=&role=&page=2&pageSize=10
 Accept: application/json
-Authorization: Bearer {{loginAdmin.response.body.$.accessToken}}
+# Authorization: Bearer {{loginAdmin.response.body.$.accessToken}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyIiwiZW1haWwiOiJyaXphbEBleGFtcGxlLmNvbSIsImp0aSI6IjI3NzU1MGIzYWE1MDQ3ZDJhZDVlNDQ0MDg3ZmYzZWY5IiwiaWF0IjoxNzk1NTkwNDc4LCJyb2xlIjoiQ1VTVE9NRVIiLCJuYmYiOjE3OTU1OTA0NzgsImV4cCI6MTc5NTU5MTM3OCwiaXNzIjoiRXdhbGxldC5ERVYiLCJhdWQiOiJFd2FsbGV0LkFwaSJ9.fxIl15CioQxOmgFqvZC6GYqeY676ysmr8KZQBI4iTAc
 
 ### Get User Detail by ID
 GET {{baseUrl}}/api/v1/users/3

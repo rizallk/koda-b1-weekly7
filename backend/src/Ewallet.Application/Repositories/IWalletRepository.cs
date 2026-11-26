@@ -13,7 +13,6 @@ public interface IWalletRepository
   Task<WalletResponse?> GetWalletResponseByIdAsync(long id, CancellationToken cancellationToken = default);
   Task<RecipientWalletResponse?> GetRecipientByWalletNumberAsync(string walletNumber, CancellationToken cancellationToken = default);
 
-  Task<bool> TryAddAsync(Wallet wallet, CancellationToken cancellationToken = default);
   Task<bool> TryUpdateBalanceAsync(Wallet wallet, CancellationToken cancellationToken = default);
   Task<string?> GetLastWalletNumberAsync(CancellationToken cancellationToken = default);
 }

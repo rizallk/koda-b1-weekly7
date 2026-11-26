@@ -9,4 +9,6 @@ GO
 
 select * from dbo.AspNetRoles;
 select * from dbo.AspNetUsers;
+select * from dbo.Wallets;
+
 GO

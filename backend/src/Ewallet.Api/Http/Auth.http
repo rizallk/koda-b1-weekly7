@@ -36,7 +36,8 @@ Content-Type: application/json
 ### 4. Cek Identitas Sesi Aktif - CUSTOMER (/auth/me)
 GET {{baseUrl}}/api/v1/auth/me
 Accept: application/json
-Authorization: Bearer {{loginCustomer.response.body.$.accessToken}}
+# Authorization: Bearer {{loginCustomer.response.body.$.accessToken}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyIiwiZW1haWwiOiJyaXphbEBleGFtcGxlLmNvbSIsImp0aSI6IjVhYWIwNzkwOTU3ZjQ1YWZiZGIwMjUxYmQ5OTk4MTFkIiwiaWF0IjoxNzk1NTg4ODI5LCJyb2xlIjoiQ1VTVE9NRVIiLCJuYmYiOjE3OTU1ODg4MjksImV4cCI6MTc5NTU4OTcyOSwiaXNzIjoiRXdhbGxldC5ERVYiLCJhdWQiOiJFd2FsbGV0LkFwaSJ9.w520pBvm4oJiCVLmame-_3_SkpepenY3kDadrICljdg
 
 ### 5. Cek Identitas Sesi Aktif - ADMIN (/auth/me)
 GET {{baseUrl}}/api/v1/auth/me

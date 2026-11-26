@@ -35,13 +35,16 @@ public sealed class WalletRepository(AppDbContext db) : IWalletRepository
     return await (
       from w in _db.Wallets.AsNoTracking()
       join u in _db.Users.AsNoTracking() on w.UserId equals u.Id
-      from t in _db.Transactions.AsNoTracking()
-      where w.UserId == userId && (t.SenderWalletId == w.Id || t.ReceiverWalletId == w.Id)
-      orderby t.CreatedAtUtc descending
+      where w.UserId == userId
       select new WalletResponse(
         w.Id,
         w.UserId,
-        t.ReferenceNo,
+        _db.Transactions
+          .AsNoTracking()
+          .Where(t => t.SenderWalletId == w.Id || t.ReceiverWalletId == w.Id)
+          .OrderByDescending(t => t.CreatedAtUtc)
+          .Select(t => t.ReferenceNo)
+          .FirstOrDefault(),
         w.WalletNumber,
         w.Balance,
         w.Status,
@@ -57,13 +60,15 @@ public sealed class WalletRepository(AppDbContext db) : IWalletRepository
     return await (
       from w in _db.Wallets.AsNoTracking()
       join u in _db.Users.AsNoTracking() on w.UserId equals u.Id
-      from t in _db.Transactions.AsNoTracking()
-      where w.Id == id && (t.SenderWalletId == w.Id || t.ReceiverWalletId == w.Id)
-      orderby t.CreatedAtUtc descending
       select new WalletResponse(
         w.Id,
         w.UserId,
-        t.ReferenceNo,
+        _db.Transactions
+          .AsNoTracking()
+          .Where(t => t.SenderWalletId == w.Id || t.ReceiverWalletId == w.Id)
+          .OrderByDescending(t => t.CreatedAtUtc)
+          .Select(t => t.ReferenceNo)
+          .FirstOrDefault(),
         w.WalletNumber,
         w.Balance,
         w.Status,

@@ -1,4 +1,5 @@
 using Ewallet.Application.DTOs;
+using Ewallet.Domain.Entities;
 
 namespace Ewallet.Application.Services.Interfaces;
 
